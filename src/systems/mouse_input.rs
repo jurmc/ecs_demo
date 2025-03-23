@@ -61,7 +61,7 @@ impl System for MouseInput {
         if self.rl.borrow().is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
             let (x, y) = (mouse_pos.x.round() as i32, mouse_pos.y.round() as i32 );
             return Box::new(move | c| {
-                let e = c.take_entity();
+                let e = c.entity_take();
                 let coords = Coords { x, y };
                 c.add_component(e, coords);
                 c.add_component(e, MySize { s: 3f32 });

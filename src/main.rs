@@ -95,12 +95,12 @@ fn main() {
 
     let mut c = Coordinator::new();
 
-    let mouse = c.take_entity();
-    let cursor = c.take_entity();
-    let e0 = c.take_entity();
-    let e1 = c.take_entity();
-    let e2 = c.take_entity();
-    let e3 = c.take_entity();
+    let mouse = c.entity_take();
+    let cursor = c.entity_take();
+    let e0 = c.entity_take();
+    let e1 = c.entity_take();
+    let e2 = c.entity_take();
+    let e3 = c.entity_take();
 
     c.register_system(renderer_sys); // TODO: this block of registered systems should
                                       // also work if move after block of registered component

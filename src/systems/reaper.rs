@@ -66,7 +66,7 @@ impl System for Reaper {
                                     let vx = (v * angle_rad.cos()) as f64;
                                     let vy = (v * angle_rad.sin()) as f64;
 
-                                    let new_e = c.take_entity();
+                                    let new_e = c.entity_take();
                                     c.add_component(new_e, Coords {x, y});
                                     c.add_component(new_e, Velocity {vx, vy});
                                     c.add_component(new_e, Weight { w: 2 });
