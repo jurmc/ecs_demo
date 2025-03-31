@@ -90,8 +90,11 @@ fn main() {
     let rl_data = Rc::new(RefCell::new(rl_data));
 
     let renderer_sys = Renderer::new(rl_data.clone());
+    let renderer_sys = Rc::new(RefCell::new(renderer_sys));
     let mouse_input_sys = MouseInput::new(rl_data.clone());
+    let mouse_input_sys = Rc::new(RefCell::new(mouse_input_sys));
     let cursor_input_sys = CursorInput::new(rl_data.clone());
+    let cursor_input_sys = Rc::new(RefCell::new(cursor_input_sys));
 
     let mut c = Coordinator::new();
 
@@ -102,14 +105,14 @@ fn main() {
     let e2 = c.entity_take();
     let e3 = c.entity_take();
 
-    c.register_system(renderer_sys); // TODO: this block of registered systems should
+    c.register_system(renderer_sys.clone()); // TODO: this block of registered systems should
                                       // also work if move after block of registered component
                                       // types, and adding components to coordinato
-    c.register_system(mouse_input_sys);
-    c.register_system(cursor_input_sys);
-    c.register_system(IntegrateVelocity::new());
-    c.register_system(Gravity::new());
-    c.register_system(Reaper::new());
+    c.register_system(mouse_input_sys.clone());
+    c.register_system(cursor_input_sys.clone());
+    c.register_system(Rc::new(RefCell::new(IntegrateVelocity::new())));
+    c.register_system(Rc::new(RefCell::new(Gravity::new())));
+    c.register_system(Rc::new(RefCell::new(Reaper::new())));
 
     c.register_component::<Coords>();
     c.register_component::<MyColor>();
@@ -147,9 +150,6 @@ fn main() {
     c.add_component(e3, Weight { w: -1 });
 
     loop {
-        let updates = c.apply_all();
-        for update in updates.iter() {
-            update(&mut c);
-        }
+        c.apply_all();
     }
 }
