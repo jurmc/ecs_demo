@@ -150,6 +150,8 @@ fn main() {
     c.add_component(e3, Weight { w: -1 });
 
     loop {
+        renderer_sys.borrow_mut().draw_gui_cmds = Box::new(|_| {println!("draw gui cmds")});
+
         c.apply_all();
     }
 }

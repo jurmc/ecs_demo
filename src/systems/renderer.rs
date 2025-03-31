@@ -20,6 +20,7 @@ pub struct Renderer {
     component_types: HashSet<ComponentType>,
 
     ray_lib_data: Rc<RefCell<RayLibData>>,
+    pub draw_gui_cmds: Box<dyn Fn(&mut RaylibDrawHandle)>,
     draw_cmds: Box<dyn Fn(&mut RaylibDrawHandle)>,
 }
 
@@ -33,6 +34,7 @@ impl Renderer {
             component_types: HashSet::new(),
 
             ray_lib_data,
+            draw_gui_cmds: Renderer::empty_cmds(),
             draw_cmds: Renderer::empty_cmds(),
         };
 
@@ -51,6 +53,8 @@ impl Renderer {
 
     // Extract this to main game loop
     fn draw_gui(&self, d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32) {
+        let sth = self.draw_gui_cmds.as_ref();
+        sth(d);
         d.draw_line(30, 30, 130, 130, Color::DEEPSKYBLUE);
 
         d.gui_label(

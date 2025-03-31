@@ -84,7 +84,7 @@ dependencies = [
 [[package]]
 name = "ecs"
 version = "0.1.0"
-source = "git+https://github.com/jurmc/ecs.git#897f1e8631868873798e9d2e54fe9b00a3debe22"
+source = "git+https://github.com/jurmc/ecs.git#7ccb09344c7b78d5c3ec0905e3b764f936d2d85a"
 
 [[package]]
 name = "ecs_demo"
