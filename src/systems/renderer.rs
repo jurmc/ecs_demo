@@ -20,7 +20,7 @@ pub struct Renderer {
     component_types: HashSet<ComponentType>,
 
     ray_lib_data: Rc<RefCell<RayLibData>>,
-    pub draw_gui_cmds: Box<dyn Fn(&mut RaylibDrawHandle)>,
+    pub draw_gui_cmds: Box<dyn Fn(&mut RaylibDrawHandle, i32, i32)>,
     draw_cmds: Box<dyn Fn(&mut RaylibDrawHandle)>,
 }
 
@@ -34,8 +34,8 @@ impl Renderer {
             component_types: HashSet::new(),
 
             ray_lib_data,
-            draw_gui_cmds: Renderer::empty_cmds(),
-            draw_cmds: Renderer::empty_cmds(),
+            draw_gui_cmds: Renderer::empty_cmds2(),
+            draw_cmds: Renderer::empty_cmds(), // TODO: to remove
         };
 
         renderer
@@ -51,26 +51,8 @@ impl Renderer {
         Box::new(|_| {})
     }
 
-    // Extract this to main game loop
-    fn draw_gui(&self, d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32) {
-        let sth = self.draw_gui_cmds.as_ref();
-        sth(d);
-        d.draw_line(30, 30, 130, 130, Color::DEEPSKYBLUE);
-
-        d.gui_label(
-            rrect(gui_x + 5, gui_y + 5, 100, 30),
-            "Entities - label"
-            );
-
-        if d.gui_button( rrect(gui_x + 5, gui_y + 35, 100, 30), "Add") {
-            println!("entities.push_str(\"\nentityX\");");
-        }
-
-        d.gui_list_view(
-            rrect(gui_x +5, gui_y + 70, 100, 200),
-            "abc\ndef\nghjikl",
-            &mut 1,
-            &mut 1);
+    fn empty_cmds2() -> Box<dyn Fn(&mut RaylibDrawHandle, i32, i32)> {
+        Box::new(|d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32| {})
     }
 }
 
@@ -107,7 +89,7 @@ impl System for Renderer {
         //d.draw_rectangle(screen.width , 2, 240-2, screen.height - 4, Color::GRAY);
 
         let (gui_x, gui_y) = (screen.width, 0);
-        self.draw_gui(&mut d, gui_x, gui_y);
+        self.draw_gui_cmds.as_ref()(&mut d, gui_x, gui_y);
 
         for e in self.entities.iter() {
             let c = cm.get::<Coords>(&e);

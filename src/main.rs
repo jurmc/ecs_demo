@@ -150,7 +150,25 @@ fn main() {
     c.add_component(e3, Weight { w: -1 });
 
     loop {
-        renderer_sys.borrow_mut().draw_gui_cmds = Box::new(|_| {println!("draw gui cmds")});
+        renderer_sys.borrow_mut().draw_gui_cmds = Box::new(
+            |d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32| {
+                d.draw_line(30, 30, 130, 130, Color::DEEPSKYBLUE);
+
+                d.gui_label(
+                    rrect(gui_x + 5, gui_y + 5, 100, 30),
+                    "Entities - label"
+                );
+
+                if d.gui_button( rrect(gui_x + 5, gui_y + 35, 100, 30), "Add") {
+                    println!("entities.push_str(\"\nentityX\");");
+                }
+
+                d.gui_list_view(
+                    rrect(gui_x +5, gui_y + 70, 100, 200),
+                    "abc\ndef\nghjikl",
+                    &mut 1,
+                    &mut 1);
+            });
 
         c.apply_all();
     }
