@@ -15,6 +15,7 @@ use raylib::prelude::*;
 
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::fmt::Write;
 
 
 pub struct RayLibData {
@@ -150,8 +151,13 @@ fn main() {
     c.add_component(e3, Weight { w: -1 });
 
     loop {
+        let mut entities_list = String::new();
+        for e in c.entities_iter() {
+            write!(entities_list, "{}\n", e).unwrap();
+        }
+
         renderer_sys.borrow_mut().draw_gui_cmds = Box::new(
-            |d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32| {
+            move |d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32| {
                 d.draw_line(30, 30, 130, 130, Color::DEEPSKYBLUE);
 
                 d.gui_label(
@@ -165,7 +171,8 @@ fn main() {
 
                 d.gui_list_view(
                     rrect(gui_x +5, gui_y + 70, 100, 200),
-                    "abc\ndef\nghjikl",
+                    //"abc\ndef\nghjikl",
+                    &entities_list,
                     &mut 1,
                     &mut 1);
             });

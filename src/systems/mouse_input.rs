@@ -58,17 +58,19 @@ impl System for MouseInput {
                 y: mouse_pos.y.round() as i32 });
         }
 
-        if self.rl.borrow().is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
-            let (x, y) = (mouse_pos.x.round() as i32, mouse_pos.y.round() as i32 );
-            return Box::new(move | c| {
-                let e = c.entity_take();
-                let coords = Coords { x, y };
-                c.add_component(e, coords);
-                c.add_component(e, MySize { s: 3f32 });
-                //c.add_component(e, Weight { w: 1 });
-                c.add_component(e, TTL { ttl: 40 });
-                c.add_component(e, MyColor { c: Color::INDIANRED });
-            })
+        if mouse_pos.x < 400f32 {
+            if self.rl.borrow().is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
+                let (x, y) = (mouse_pos.x.round() as i32, mouse_pos.y.round() as i32 );
+                return Box::new(move | c| {
+                    let e = c.entity_take();
+                    let coords = Coords { x, y };
+                    c.add_component(e, coords);
+                    c.add_component(e, MySize { s: 3f32 });
+                    //c.add_component(e, Weight { w: 1 });
+                    c.add_component(e, TTL { ttl: 40 });
+                    c.add_component(e, MyColor { c: Color::INDIANRED });
+                })
+            }
         }
 
         Box::new(| _ | {})
