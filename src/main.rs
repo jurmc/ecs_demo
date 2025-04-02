@@ -28,7 +28,8 @@ pub struct AppWindow {
 }
 
 pub struct RayLibData {
-    rl: Rc<RefCell<RaylibHandle>>,
+    rl: Rc<RefCell<RaylibHandle>>, // TODO: if RayLibData is already wrapped in Rc<RefCell> do we
+                                   // need rl andraylib_thread to be wrapped?
     raylib_thread: Rc<RefCell<RaylibThread>>,
 }
 
@@ -98,7 +99,9 @@ fn main() {
         rl_data.clone(),
         app_window.clone());
     let renderer_sys = Rc::new(RefCell::new(renderer_sys));
-    let mouse_input_sys = MouseInput::new(rl_data.clone());
+    let mouse_input_sys = MouseInput::new(
+        rl_data.clone(),
+        app_window.clone());
     let mouse_input_sys = Rc::new(RefCell::new(mouse_input_sys));
     let cursor_input_sys = CursorInput::new(rl_data.clone());
     let cursor_input_sys = Rc::new(RefCell::new(cursor_input_sys));

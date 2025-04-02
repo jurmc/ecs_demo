@@ -1,4 +1,5 @@
 use crate::RayLibData;
+use crate::AppWindow;
 use crate::Coords;
 use crate::MouseControlled;
 use crate::MyColor;
@@ -20,11 +21,14 @@ pub struct MouseInput {
     entities: HashSet<Entity>,
     component_types: HashSet<ComponentType>,
 
-    rl: Rc<RefCell<RaylibHandle>>,
+    ray_lib_data: Rc<RefCell<RayLibData>>,
+    app_win: Rc<RefCell<AppWindow>>,
 }
 
 impl MouseInput {
-    pub fn new(ray_lib_data: Rc<RefCell<RayLibData>>) -> MouseInput {
+    pub fn new(
+        ray_lib_data: Rc<RefCell<RayLibData>>,
+        app_win: Rc<RefCell<AppWindow>>) -> MouseInput {
         MouseInput {
             entities: HashSet::new(),
             component_types: HashSet::from_iter(vec![
@@ -32,7 +36,8 @@ impl MouseInput {
                 ComponentType::of::<MouseControlled>(),
             ]),
 
-            rl: ray_lib_data.borrow().rl.clone(),
+            ray_lib_data: ray_lib_data, // TODO: rename rl to ray_lib_data or sth
+            app_win,
         }
     }
 }
@@ -50,7 +55,9 @@ impl System for MouseInput {
     }
 
     fn apply(&mut self, cm: &mut ComponentManager) -> Box<dyn Fn(&mut Coordinator)> {
-        let mouse_pos = self.rl.borrow().get_mouse_position().clone();
+        let rl = &self.ray_lib_data.borrow().rl;
+        let view_w = self.app_win.borrow().view_area.w;
+        let mouse_pos = rl.borrow().get_mouse_position().clone();
 
         for e in self.entities.iter() {
             cm.add(*e, Coords {
@@ -58,15 +65,14 @@ impl System for MouseInput {
                 y: mouse_pos.y.round() as i32 });
         }
 
-        if mouse_pos.x < 400f32 {
-            if self.rl.borrow().is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
+        if (mouse_pos.x as i32) < view_w {
+            if rl.borrow().is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
                 let (x, y) = (mouse_pos.x.round() as i32, mouse_pos.y.round() as i32 );
                 return Box::new(move | c| {
                     let e = c.entity_take();
                     let coords = Coords { x, y };
                     c.add_component(e, coords);
                     c.add_component(e, MySize { s: 3f32 });
-                    //c.add_component(e, Weight { w: 1 });
                     c.add_component(e, TTL { ttl: 40 });
                     c.add_component(e, MyColor { c: Color::INDIANRED });
                 })
