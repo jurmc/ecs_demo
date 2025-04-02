@@ -17,11 +17,6 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::fmt::Write;
 
-pub struct Screen {
-    width: i32,
-    height: i32
-}
-
 pub struct Area {
     w: i32,
     h: i32
@@ -35,7 +30,6 @@ pub struct AppWindow {
 pub struct RayLibData {
     rl: Rc<RefCell<RaylibHandle>>,
     raylib_thread: Rc<RefCell<RaylibThread>>,
-    screen: Rc<RefCell<Screen>>,
 }
 
 impl RayLibData {
@@ -47,15 +41,9 @@ impl RayLibData {
             .title("ECS demo")
             .build();
 
-        let screen = Screen {
-            width,
-            height,
-        };
-
         RayLibData {
             rl: Rc::new(RefCell::new(rl)).clone(),
             raylib_thread: Rc::new(RefCell::new(raylib_thread)).clone(),
-            screen: Rc::new(RefCell::new(screen)).clone(),
         }
     }
 }
