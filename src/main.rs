@@ -104,7 +104,9 @@ fn main() {
     };
     let app_window = Rc::new(RefCell::new(app_window));
 
-    let renderer_sys = Renderer::new(rl_data.clone());
+    let renderer_sys = Renderer::new(
+        rl_data.clone(),
+        app_window.clone());
     let renderer_sys = Rc::new(RefCell::new(renderer_sys));
     let mouse_input_sys = MouseInput::new(rl_data.clone());
     let mouse_input_sys = Rc::new(RefCell::new(mouse_input_sys));

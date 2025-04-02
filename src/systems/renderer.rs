@@ -2,6 +2,7 @@ use crate::RayLibData;
 use crate::Coords;
 use crate::MyColor;
 use crate::MySize;
+use crate::AppWindow;
 
 use ecs::ComponentType;
 use ecs::ComponentManager;
@@ -20,13 +21,15 @@ pub struct Renderer {
     component_types: HashSet<ComponentType>,
 
     ray_lib_data: Rc<RefCell<RayLibData>>,
+    app_window: Rc<RefCell<AppWindow>>,
+
     pub draw_gui_cmds: Box<dyn Fn(&mut RaylibDrawHandle, i32, i32)>,
     draw_cmds: Box<dyn Fn(&mut RaylibDrawHandle)>,
 }
 
 
 impl Renderer {
-    pub fn new(ray_lib_data: Rc<RefCell<RayLibData>>) -> Renderer {
+    pub fn new(ray_lib_data: Rc<RefCell<RayLibData>>, app_window: Rc<RefCell<AppWindow>>) -> Renderer {
         ray_lib_data.borrow().rl.borrow_mut().set_target_fps(20);
 
         let renderer = Renderer {
@@ -34,6 +37,8 @@ impl Renderer {
             component_types: HashSet::new(),
 
             ray_lib_data,
+            app_window,
+
             draw_gui_cmds: Renderer::empty_cmds2(),
             draw_cmds: Renderer::empty_cmds(), // TODO: to remove
         };
@@ -70,6 +75,7 @@ impl System for Renderer {
 
     fn apply(&mut self, cm: &mut ComponentManager) -> Box<dyn Fn(&mut Coordinator)> {
         let ray_lib_data = self.ray_lib_data.borrow_mut();
+        let app_window = self.app_window.borrow(); 
 
         let mut rl= ray_lib_data.rl.borrow_mut();
         let raylib_thread = ray_lib_data.raylib_thread.borrow();
@@ -82,13 +88,11 @@ impl System for Renderer {
 
 
         let mut d = rl.begin_drawing(&raylib_thread);
-        let screen = ray_lib_data.screen.borrow();
+        let view_area = &app_window.view_area;
 
         d.clear_background(Color::DARKGRAY);
-        //d.draw_rectangle(2, 2, screen.width - 4, screen.height - 4, Color::GRAY);
-        //d.draw_rectangle(screen.width , 2, 240-2, screen.height - 4, Color::GRAY);
 
-        let (gui_x, gui_y) = (screen.width, 0);
+        let (gui_x, gui_y) = (view_area.w, 0);
         self.draw_gui_cmds.as_ref()(&mut d, gui_x, gui_y);
 
         for e in self.entities.iter() {
