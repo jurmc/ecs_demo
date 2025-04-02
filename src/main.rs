@@ -33,11 +33,12 @@ pub struct RayLibData {
 }
 
 impl RayLibData {
-    pub fn new(width: i32, height: i32) -> RayLibData {
-        let gui_width = 240;
+    pub fn new(app_window: &AppWindow) -> RayLibData {
+        let window_width = app_window.view_area.w + app_window.gui_area.w;
+        let window_height = i32::max(app_window.view_area.h, app_window.gui_area.h);
 
-        let (mut rl, raylib_thread) = raylib::init()
-            .size(width + gui_width, height)
+        let (rl, raylib_thread) = raylib::init()
+            .size(window_width, window_height)
             .title("ECS demo")
             .build();
 
@@ -79,17 +80,18 @@ struct MouseControlled {}
 struct CursorControlled {}
 
 fn main() {
-
-    let mut globals = Globals::new();
+    let mut globals = Globals::new(); // TODO: AppWindow struct is a good candidate for
+                                               // use as Global
 
     let (width, height) = (640, 480);
-    let rl_data = RayLibData::new(width, height);
-    let rl_data = Rc::new(RefCell::new(rl_data));
-
     let app_window = AppWindow {
         view_area: Area {w: width, h: height},
         gui_area: Area {w: width, h: height},
     };
+
+    let rl_data = RayLibData::new(&app_window);
+
+    let rl_data = Rc::new(RefCell::new(rl_data));
     let app_window = Rc::new(RefCell::new(app_window));
 
     let renderer_sys = Renderer::new(
