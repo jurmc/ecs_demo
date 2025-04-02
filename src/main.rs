@@ -17,6 +17,20 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::fmt::Write;
 
+pub struct Screen {
+    width: i32,
+    height: i32
+}
+
+pub struct Area {
+    w: i32,
+    h: i32
+}
+
+pub struct AppWindow {
+    view_area: Area,
+    gui_area: Area,
+}
 
 pub struct RayLibData {
     rl: Rc<RefCell<RaylibHandle>>,
@@ -65,12 +79,6 @@ struct Velocity {
     vy: f64,
 }
 
-pub struct Screen {
-    width: i32,
-    height: i32
-}
-
-
 struct TTL {
     ttl: i32,
 }
@@ -89,6 +97,12 @@ fn main() {
     let (width, height) = (640, 480);
     let rl_data = RayLibData::new(width, height);
     let rl_data = Rc::new(RefCell::new(rl_data));
+
+    let app_window = AppWindow {
+        view_area: Area {w: width, h: height},
+        gui_area: Area {w: width, h: height},
+    };
+    let app_window = Rc::new(RefCell::new(app_window));
 
     let renderer_sys = Renderer::new(rl_data.clone());
     let renderer_sys = Rc::new(RefCell::new(renderer_sys));
