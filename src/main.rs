@@ -17,6 +17,12 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::fmt::Write;
 
+enum SimMode {
+    Stopped,
+    Started,
+    OneStep,
+}
+
 pub struct Area {
     w: i32,
     h: i32
@@ -167,23 +173,40 @@ fn main() {
 
         renderer_sys.borrow_mut().draw_gui_cmds = Box::new(
             move |d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32| {
-                d.draw_line(30, 30, 130, 130, Color::DEEPSKYBLUE);
+                let mut sim_mode = SimMode::Stopped; // TODO: make sim_mode global and
+                                                              // update it here and use befor
+                                                              // systems::apply
+                let mut level_y = gui_y + 5;
+
+                if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Step") {
+                    println!("Step button pressed");
+                    sim_mode = SimMode::OneStep
+                }
+                if d.gui_button( rrect(gui_x + 120, gui_y + level_y, 100, 30), "Play") {
+                    println!("Play button pressed");
+                    match sim_mode {
+                        SimMode::Started => sim_mode = SimMode::Stopped,
+                        _ => sim_mode = SimMode::Stopped,
+                    }
+                }
+                level_y += 30;
 
                 d.gui_label(
-                    rrect(gui_x + 5, gui_y + 5, 100, 30),
+                    rrect(gui_x + 5, level_y, 100, 30),
                     "Entities - label"
                 );
+                level_y += 30;
 
-                if d.gui_button( rrect(gui_x + 5, gui_y + 35, 100, 30), "Add") {
-                    println!("entities.push_str(\"\nentityX\");");
+                if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Add") {
+                    println!("Add button pressed");
                 }
+                level_y += 70;
 
                 d.gui_list_view(
-                    rrect(gui_x +5, gui_y + 70, 100, 200),
-                    //"abc\ndef\nghjikl",
+                    rrect(gui_x +5, level_y, 100, 200),
                     &entities_list,
                     &mut 1,
-                    &mut 1);
+                    &mut 2);
             });
 
         c.apply_all();
