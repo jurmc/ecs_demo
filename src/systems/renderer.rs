@@ -24,7 +24,7 @@ pub struct Renderer {
     globals: Rc<RefCell<Globals>>,
     ray_lib_data: Rc<RefCell<RayLibData>>,
 
-    pub draw_gui_cmds: Box<dyn Fn(&mut RaylibDrawHandle, i32, i32)>,
+    pub draw_gui_cmds: Box<dyn Fn(Rc<RefCell<Globals>>, &mut RaylibDrawHandle, i32, i32)>,
     draw_cmds: Box<dyn Fn(&mut RaylibDrawHandle)>,
 }
 
@@ -39,10 +39,10 @@ impl Renderer {
             entities: HashSet::new(),
             component_types: HashSet::new(),
 
-            globals,
+            globals: globals.clone(),
             ray_lib_data,
 
-            draw_gui_cmds: Renderer::empty_cmds2(),
+            draw_gui_cmds: Renderer::empty_cmds2(globals.clone()),
             draw_cmds: Renderer::empty_cmds(), // TODO: to remove
         };
 
@@ -59,8 +59,8 @@ impl Renderer {
         Box::new(|_| {})
     }
 
-    fn empty_cmds2() -> Box<dyn Fn(&mut RaylibDrawHandle, i32, i32)> {
-        Box::new(|d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32| {})
+    fn empty_cmds2(g: Rc<RefCell<Globals>>) -> Box<dyn Fn(Rc<RefCell<Globals>>, &mut RaylibDrawHandle, i32, i32)> {
+        Box::new(|g: Rc<RefCell<Globals>>, d: &mut RaylibDrawHandle, _gui_x: i32, _gui_y: i32| {})
     }
 }
 
@@ -97,7 +97,7 @@ impl System for Renderer {
         d.clear_background(Color::DARKGRAY);
 
         let (gui_x, gui_y) = (view_area.w, 0);
-        self.draw_gui_cmds.as_ref()(&mut d, gui_x, gui_y);
+        self.draw_gui_cmds.as_ref()(self.globals.clone(), &mut d, gui_x, gui_y);
 
         for e in self.entities.iter() {
             let c = cm.get::<Coords>(&e);

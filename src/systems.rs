@@ -4,6 +4,7 @@ mod velocity;
 mod gravity;
 mod renderer;
 mod mouse_input;
+mod borders;
 
 pub use crate::systems::cursor_input::CursorInput;
 pub use crate::systems::reaper::Reaper;
@@ -11,4 +12,5 @@ pub use crate::systems::velocity::IntegrateVelocity;
 pub use crate::systems::gravity::Gravity;
 pub use crate::systems::renderer::Renderer;
 pub use crate::systems::mouse_input::MouseInput;
+pub use crate::systems::borders::Borders;
 

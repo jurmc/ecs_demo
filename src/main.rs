@@ -6,6 +6,7 @@ use systems::IntegrateVelocity;
 use systems::Gravity;
 use systems::Renderer;
 use systems::MouseInput;
+use systems::Borders;
 
 use ecs::Entity;
 use ecs::Coordinator;
@@ -96,6 +97,7 @@ fn main() {
 
     let mut globals = Globals::new();
     globals.add("app_window", app_window);
+    globals.add("sim_mode", SimMode::Stopped);
     let globals = Rc::new(RefCell::new(globals));
 
     let rl_data = Rc::new(RefCell::new(rl_data));
@@ -128,6 +130,7 @@ fn main() {
     c.register_system(Rc::new(RefCell::new(IntegrateVelocity::new())));
     c.register_system(Rc::new(RefCell::new(Gravity::new())));
     c.register_system(Rc::new(RefCell::new(Reaper::new())));
+    c.register_system(Rc::new(RefCell::new(Borders::new())));
 
     c.register_component::<Coords>();
     c.register_component::<MyColor>();
@@ -171,10 +174,12 @@ fn main() {
         }
 
         renderer_sys.borrow_mut().draw_gui_cmds = Box::new(
-            move |d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32| {
+            move |g: Rc<RefCell<Globals>>, d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32| {
                 let mut sim_mode = SimMode::Stopped; // TODO: make sim_mode global and
                                                               // update it here and use befor
                                                               // systems::apply
+//                let mut g = g.borrow_mut();
+//                let sim_mode = g.get_mut::<SimMode>("sim_mode").unwrap();
                 let mut level_y = gui_y + 5;
 
                 if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Step") {
