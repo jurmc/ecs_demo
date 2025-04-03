@@ -87,27 +87,26 @@ struct MouseControlled {}
 struct CursorControlled {}
 
 fn main() {
-    let mut globals = Globals::new(); // TODO: AppWindow struct is a good candidate for
-                                               // use as Global
-
     let (width, height) = (640, 480);
     let app_window = AppWindow {
         view_area: Area {w: width, h: height},
         gui_area: Area {w: width, h: height},
     };
-
     let rl_data = RayLibData::new(&app_window);
 
+    let mut globals = Globals::new();
+    globals.add("app_window", app_window);
+    let globals = Rc::new(RefCell::new(globals));
+
     let rl_data = Rc::new(RefCell::new(rl_data));
-    let app_window = Rc::new(RefCell::new(app_window));
 
     let renderer_sys = Renderer::new(
-        rl_data.clone(),
-        app_window.clone());
+        globals.clone(),
+        rl_data.clone());
     let renderer_sys = Rc::new(RefCell::new(renderer_sys));
     let mouse_input_sys = MouseInput::new(
-        rl_data.clone(),
-        app_window.clone());
+        globals.clone(),
+        rl_data.clone());
     let mouse_input_sys = Rc::new(RefCell::new(mouse_input_sys));
     let cursor_input_sys = CursorInput::new(rl_data.clone());
     let cursor_input_sys = Rc::new(RefCell::new(cursor_input_sys));

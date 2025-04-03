@@ -84,7 +84,7 @@ dependencies = [
 [[package]]
 name = "ecs"
 version = "0.1.0"
-source = "git+https://github.com/jurmc/ecs.git#7ccb09344c7b78d5c3ec0905e3b764f936d2d85a"
+source = "git+https://github.com/jurmc/ecs.git#7c1d385d49b0ce97e84a946aee670caa9c625bcc"
 
 [[package]]
 name = "ecs_demo"
@@ -254,7 +254,7 @@ dependencies = [
 [[package]]
 name = "raylib"
 version = "5.5.1"
-source = "git+https://github.com/raylib-rs/raylib-rs.git#bdc64b254224633a40a772258a40603074855f2e"
+source = "git+https://github.com/raylib-rs/raylib-rs.git#4ef48378a6a4ef83784644ce91f48d33df969816"
 dependencies = [
  "cfg-if",
  "paste",
@@ -266,7 +266,7 @@ dependencies = [
 [[package]]
 name = "raylib-sys"
 version = "5.5.1"
-source = "git+https://github.com/raylib-rs/raylib-rs.git#bdc64b254224633a40a772258a40603074855f2e"
+source = "git+https://github.com/raylib-rs/raylib-rs.git#4ef48378a6a4ef83784644ce91f48d33df969816"
 dependencies = [
  "bindgen",
  "cc",

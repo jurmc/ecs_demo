@@ -9,6 +9,7 @@ use ecs::ComponentManager;
 use ecs::Entity;
 use ecs::System;
 use ecs::Coordinator;
+use ecs::Globals;
 use raylib::prelude::*;
 
 use std::collections::HashSet;
@@ -20,8 +21,8 @@ pub struct Renderer {
     entities: HashSet<Entity>,
     component_types: HashSet<ComponentType>,
 
+    globals: Rc<RefCell<Globals>>,
     ray_lib_data: Rc<RefCell<RayLibData>>,
-    app_window: Rc<RefCell<AppWindow>>,
 
     pub draw_gui_cmds: Box<dyn Fn(&mut RaylibDrawHandle, i32, i32)>,
     draw_cmds: Box<dyn Fn(&mut RaylibDrawHandle)>,
@@ -29,15 +30,17 @@ pub struct Renderer {
 
 
 impl Renderer {
-    pub fn new(ray_lib_data: Rc<RefCell<RayLibData>>, app_window: Rc<RefCell<AppWindow>>) -> Renderer {
+    pub fn new(
+        globals: Rc<RefCell<Globals>>,
+        ray_lib_data: Rc<RefCell<RayLibData>>) -> Renderer {
         ray_lib_data.borrow().rl.borrow_mut().set_target_fps(20);
 
         let renderer = Renderer {
             entities: HashSet::new(),
             component_types: HashSet::new(),
 
+            globals,
             ray_lib_data,
-            app_window,
 
             draw_gui_cmds: Renderer::empty_cmds2(),
             draw_cmds: Renderer::empty_cmds(), // TODO: to remove
@@ -75,7 +78,6 @@ impl System for Renderer {
 
     fn apply(&mut self, cm: &mut ComponentManager) -> Box<dyn Fn(&mut Coordinator)> {
         let ray_lib_data = self.ray_lib_data.borrow_mut();
-        let app_window = self.app_window.borrow(); 
 
         let mut rl= ray_lib_data.rl.borrow_mut();
         let raylib_thread = ray_lib_data.raylib_thread.borrow();
@@ -88,6 +90,8 @@ impl System for Renderer {
 
 
         let mut d = rl.begin_drawing(&raylib_thread);
+        let g = self.globals.borrow();
+        let app_window = g.get::<AppWindow>("app_window").unwrap();
         let view_area = &app_window.view_area;
 
         d.clear_background(Color::DARKGRAY);
