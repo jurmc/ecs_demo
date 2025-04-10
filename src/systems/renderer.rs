@@ -3,6 +3,7 @@ use crate::Coords;
 use crate::MyColor;
 use crate::MySize;
 use crate::AppWindow;
+use crate::Area;
 
 use ecs::ComponentType;
 use ecs::ComponentManager;
@@ -55,12 +56,24 @@ impl Renderer {
         self.draw_cmds = Renderer::empty_cmds();
     }
 
+    // TODO: either empty_cmds, or empty_cmds2 should be removed
     fn empty_cmds() -> Box<dyn Fn(&mut RaylibDrawHandle)> {
         Box::new(|_| {})
     }
 
     fn empty_cmds2(g: Rc<RefCell<Globals>>) -> Box<dyn Fn(Rc<RefCell<Globals>>, &mut RaylibDrawHandle, i32, i32)> {
         Box::new(|g: Rc<RefCell<Globals>>, d: &mut RaylibDrawHandle, _gui_x: i32, _gui_y: i32| {})
+    }
+
+    fn draw_frames(&self, d: &mut RaylibDrawHandle, va: &Area) {
+        let color = Color::DARKSLATEGRAY;
+        let thickness = 5;
+        d.draw_rectangle(0, 0, va.w, thickness, color);
+        d.draw_rectangle(0, va.h-thickness, va.w, va.h, color);
+        d.draw_rectangle(0, 0, thickness, va.h, color);
+        d.draw_rectangle(va.w-thickness, 0, thickness, va.h, color);
+
+        // TODO: draw frame around GUI
     }
 }
 
@@ -95,6 +108,7 @@ impl System for Renderer {
         let view_area = &app_window.view_area;
 
         d.clear_background(Color::DARKGRAY);
+        self.draw_frames(&mut d, &view_area);
 
         let (gui_x, gui_y) = (view_area.w, 0);
         self.draw_gui_cmds.as_ref()(self.globals.clone(), &mut d, gui_x, gui_y);

@@ -113,6 +113,8 @@ fn main() {
     let cursor_input_sys = CursorInput::new(rl_data.clone());
     let cursor_input_sys = Rc::new(RefCell::new(cursor_input_sys));
 
+    let borders = Borders::new(globals.clone());
+
     let mut c = Coordinator::new();
 
     let mouse = c.entity_take();
@@ -130,7 +132,7 @@ fn main() {
     c.register_system(Rc::new(RefCell::new(IntegrateVelocity::new())));
     c.register_system(Rc::new(RefCell::new(Gravity::new())));
     c.register_system(Rc::new(RefCell::new(Reaper::new())));
-    c.register_system(Rc::new(RefCell::new(Borders::new())));
+    c.register_system(Rc::new(RefCell::new(borders)));
 
     c.register_component::<Coords>();
     c.register_component::<MyColor>();

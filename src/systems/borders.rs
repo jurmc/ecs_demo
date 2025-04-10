@@ -1,26 +1,34 @@
+use crate::AppWindow;
+use crate::Coords;
+use crate::Velocity;
+
 use ecs::ComponentType;
 use ecs::ComponentManager;
 use ecs::Coordinator;
 use ecs::Entity;
 use ecs::System;
-
-use crate::Coords;
-use crate::Velocity;
+use ecs::Globals;
 
 use std::collections::HashSet;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 pub struct Borders {
     entities: HashSet<Entity>,
     component_types: HashSet<ComponentType>,
+
+    globals: Rc<RefCell<Globals>>,
 }
 
 impl Borders {
-    pub fn new() -> Borders {
+    pub fn new(g: Rc<RefCell<Globals>>) -> Borders {
         Borders {
             entities: HashSet::new(),
             component_types: HashSet::from_iter(vec![
                 ComponentType::of::<Coords>(),
             ]),
+
+            globals: g,
         }
     }
 }
@@ -42,16 +50,18 @@ impl System for Borders {
             if let Some(v) = cm.get_mut::<Velocity>(e) {
                 let mut v = Velocity {vx: v.vx, vy: v.vy};
                 if let Some(coords) = cm.get::<Coords>(e) {
-                    if coords.x < 0 || coords.x > 450 { // TODO: get boundry from globals or
-                                                        // somewhere else
+
+                    let globals = self.globals.borrow();
+                    let w = globals.get::<AppWindow>("app_window").unwrap().view_area.w;
+                    let h = globals.get::<AppWindow>("app_window").unwrap().view_area.h;
+
+                    if coords.x < 0 || coords.x > w {
                         v.vx = -v.vx;
                     }
-                    if coords.y < 0 || coords.y > 250 { // TODO: get boundry from globals or
-                                                        // somewhere else
+                    if coords.y < 0 || coords.y > h {
                         v.vy = -v.vy;
                     }
                     cm.add(*e, v);
-                    println!("ticcck");
                 }
             }
         }
