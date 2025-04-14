@@ -110,7 +110,7 @@ fn main() {
         globals.clone(),
         rl_data.clone());
     let mouse_input_sys = Rc::new(RefCell::new(mouse_input_sys));
-    let cursor_input_sys = CursorInput::new(rl_data.clone());
+    let cursor_input_sys = CursorInput::new();
     let cursor_input_sys = Rc::new(RefCell::new(cursor_input_sys));
 
     let borders = Borders::new(globals.clone());
@@ -175,11 +175,10 @@ fn main() {
             write!(entities_list, "{}\n", e).unwrap();
         }
 
+        let ray_lib_data = rl_data.borrow_mut();
+        let mut rl= ray_lib_data.rl.borrow_mut();
+        let raylib_thread = ray_lib_data.raylib_thread.borrow();
         {
-            let ray_lib_data = rl_data.borrow_mut();
-
-            let mut rl= ray_lib_data.rl.borrow_mut();
-            let raylib_thread = ray_lib_data.raylib_thread.borrow();
 
             if rl.window_should_close() {
                 panic!("Exitted..."); // TODO: this condition should rather be somehow signalled to the
@@ -209,6 +208,32 @@ fn main() {
                     };
                     d.draw_circle(coords.x, coords.y, size, color.c);
                 }
+            }
+        }
+
+        // CursorInput
+        {
+            let (mut inc_x, mut inc_y) = (0, 0);
+            //let rl = rl.borrow();
+            //let sth = rl;
+
+            if rl.is_key_down(KeyboardKey::KEY_RIGHT) {
+                inc_x += 1;
+            }
+            if rl.is_key_down(KeyboardKey::KEY_LEFT) {
+                inc_x -= 1;
+            }
+            if rl.is_key_down(KeyboardKey::KEY_UP) {
+                inc_y -= 1;
+            }
+            if rl.is_key_down(KeyboardKey::KEY_DOWN) {
+                inc_y +=1;
+            }
+
+            for e in cursor_input_sys.borrow().entities.iter() {
+                let coords = c.get_mut::<Coords>(e).unwrap();
+                coords.x = coords.x+ inc_x;
+                coords.y = coords.y+ inc_y;
             }
         }
 
