@@ -187,9 +187,10 @@ fn main() {
 
             let mut d = rl.begin_drawing(&raylib_thread);
             let view_area = &app_window.view_area;
+            let gui_area = &app_window.gui_area;
 
             d.clear_background(Color::DARKGRAY);
-            draw_frames(&mut d, &view_area);
+            draw_frames(&mut d, &view_area, &gui_area);
 
             let (gui_x, gui_y) = (view_area.w, 0);
             draw_gui(&mut d, &entities_list, gui_x, gui_y);
@@ -276,13 +277,15 @@ fn draw_gui(d: &mut RaylibDrawHandle, entities_list: &String, gui_x: i32, gui_y:
         &mut 2);
 }
 
-fn draw_frames(d: &mut RaylibDrawHandle, va: &Area) {
+fn draw_frames(d: &mut RaylibDrawHandle, view: &Area, gui: &Area) {
         let color = Color::DARKSLATEGRAY;
         let thickness = 5;
-        d.draw_rectangle(0, 0, va.w, thickness, color);
-        d.draw_rectangle(0, va.h-thickness, va.w, va.h, color);
-        d.draw_rectangle(0, 0, thickness, va.h, color);
-        d.draw_rectangle(va.w-thickness, 0, thickness, va.h, color);
+        d.draw_rectangle(0, 0, view.w, thickness, color);
+        d.draw_rectangle(0, view.h-thickness, view.w, view.h, color);
+        d.draw_rectangle(0, 0, thickness, view.h, color);
+        d.draw_rectangle(view.w-(thickness/2), 0, thickness+(thickness/2), view.h, color);
 
-        // TODO: draw frame around GUI
+        d.draw_rectangle(view.w, 0, gui.w, thickness, color);
+        d.draw_rectangle(view.w, gui.h-thickness, gui.w, gui.h, color);
+        d.draw_rectangle(view.w+gui.w-thickness, 0, thickness, gui.h, color);
     }
