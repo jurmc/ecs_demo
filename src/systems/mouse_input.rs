@@ -56,30 +56,30 @@ impl System for MouseInput {
     }
 
     fn apply(&mut self, cm: &mut ComponentManager) -> Box<dyn Fn(&mut Coordinator)> {
-        let rl = &self.ray_lib_data.borrow().rl;
-        let globals = self.globals.borrow();
-        let view_width = globals.get::<AppWindow>("app_window").unwrap().view_area.w;
-        let mouse_pos = rl.borrow().get_mouse_position().clone();
-
-        for e in self.entities.iter() {
-            cm.add(*e, Coords {
-                x: mouse_pos.x.round() as i32,
-                y: mouse_pos.y.round() as i32 });
-        }
-
-        if (mouse_pos.x as i32) < view_width {
-            if rl.borrow().is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
-                let (x, y) = (mouse_pos.x.round() as i32, mouse_pos.y.round() as i32 );
-                return Box::new(move | c| {
-                    let e = c.entity_take();
-                    let coords = Coords { x, y };
-                    c.add_component(e, coords);
-                    c.add_component(e, MySize { s: 3f32 });
-                    c.add_component(e, TTL { ttl: 40 });
-                    c.add_component(e, MyColor { c: Color::INDIANRED });
-                })
-            }
-        }
+//        let rl = &self.ray_lib_data.borrow().rl;
+//        let globals = self.globals.borrow();
+//        let view_width = globals.get::<AppWindow>("app_window").unwrap().view_area.w;
+//        let mouse_pos = rl.borrow().get_mouse_position().clone();
+//
+//        for e in self.entities.iter() {
+//            cm.add(*e, Coords {
+//                x: mouse_pos.x.round() as i32,
+//                y: mouse_pos.y.round() as i32 });
+//        }
+//
+//        if (mouse_pos.x as i32) < view_width {
+//            if rl.borrow().is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
+//                let (x, y) = (mouse_pos.x.round() as i32, mouse_pos.y.round() as i32 );
+//                return Box::new(move | c| {
+//                    let e = c.entity_take();
+//                    let coords = Coords { x, y };
+//                    c.add_component(e, coords);
+//                    c.add_component(e, MySize { s: 3f32 });
+//                    c.add_component(e, TTL { ttl: 40 });
+//                    c.add_component(e, MyColor { c: Color::INDIANRED });
+//                })
+//            }
+//        }
 
         Box::new(| _ | {})
     }

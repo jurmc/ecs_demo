@@ -11,7 +11,7 @@ use systems::Borders;
 use ecs::Entity;
 use ecs::Coordinator;
 use ecs::ComponentType;
-use ecs::Globals;
+use ecs::Globals; // TODO: to be removed from ECS, and from ecs_demo
 use raylib::prelude::*;
 
 use std::rc::Rc;
@@ -96,8 +96,8 @@ fn main() {
     let rl_data = RayLibData::new(&app_window);
 
     let mut globals = Globals::new();
-    globals.add("app_window", app_window);
-    globals.add("sim_mode", SimMode::Stopped);
+//    globals.add("app_window", app_window);
+//    globals.add("sim_mode", SimMode::Stopped);
     let globals = Rc::new(RefCell::new(globals));
 
     let rl_data = Rc::new(RefCell::new(rl_data));
@@ -175,46 +175,89 @@ fn main() {
             write!(entities_list, "{}\n", e).unwrap();
         }
 
-        renderer_sys.borrow_mut().draw_gui_cmds = Box::new(
-            move |g: Rc<RefCell<Globals>>, d: &mut RaylibDrawHandle, gui_x: i32, gui_y: i32| {
-                let mut sim_mode = SimMode::Stopped; // TODO: make sim_mode global and
-                                                              // update it here and use befor
-                                                              // systems::apply
-//                let mut g = g.borrow_mut();
-//                let sim_mode = g.get_mut::<SimMode>("sim_mode").unwrap();
-                let mut level_y = gui_y + 5;
+        {
+            let ray_lib_data = rl_data.borrow_mut();
 
-                if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Step") {
-                    println!("Step button pressed");
-                    sim_mode = SimMode::OneStep
+            let mut rl= ray_lib_data.rl.borrow_mut();
+            let raylib_thread = ray_lib_data.raylib_thread.borrow();
+
+            if rl.window_should_close() {
+                panic!("Exitted..."); // TODO: this condition should rather be somehow signalled to the
+                                      // outside world...
+            }
+
+            let mut d = rl.begin_drawing(&raylib_thread);
+            let view_area = &app_window.view_area;
+
+            d.clear_background(Color::DARKGRAY);
+            draw_frames(&mut d, &view_area);
+
+            let (gui_x, gui_y) = (view_area.w, 0);
+            draw_gui(&mut d, &entities_list, gui_x, gui_y);
+
+            for e in renderer_sys.borrow().entities.iter() {
+                let coords = c.get::<Coords>(&e);
+                if let Some(coords) = coords {
+                    let coords = Coords {x: coords.x, y: coords.y};
+                    let size = match c.get::<MySize>(&e) {
+                        Some(size) => size.s,
+                        None => 10f32,
+                    };
+                    let color = match c.get::<MyColor>(&e) {
+                        Some(color) => color,
+                        None => &mut MyColor { c: Color::CYAN},
+                    };
+                    d.draw_circle(coords.x, coords.y, size, color.c);
                 }
-                if d.gui_button( rrect(gui_x + 120, gui_y + level_y, 100, 30), "Play") {
-                    println!("Play button pressed");
-                    match sim_mode {
-                        SimMode::Started => sim_mode = SimMode::Stopped,
-                        _ => sim_mode = SimMode::Stopped,
-                    }
-                }
-                level_y += 30;
-
-                d.gui_label(
-                    rrect(gui_x + 5, level_y, 100, 30),
-                    "Entities - label"
-                );
-                level_y += 30;
-
-                if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Add") {
-                    println!("Add button pressed");
-                }
-                level_y += 70;
-
-                d.gui_list_view(
-                    rrect(gui_x +5, level_y, 100, 200),
-                    &entities_list,
-                    &mut 1,
-                    &mut 2);
-            });
+            }
+        }
 
         c.apply_all();
     }
 }
+
+fn draw_gui(d: &mut RaylibDrawHandle, entities_list: &String, gui_x: i32, gui_y: i32) {
+    let mut sim_mode = SimMode::Stopped;
+    let mut level_y = gui_y + 5;
+
+    if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Step") {
+        println!("Step button pressed");
+        sim_mode = SimMode::OneStep
+    }
+    if d.gui_button( rrect(gui_x + 120, gui_y + level_y, 100, 30), "Play") {
+        println!("Play button pressed");
+        match sim_mode {
+            SimMode::Started => sim_mode = SimMode::Stopped,
+            _ => sim_mode = SimMode::Stopped,
+        }
+    }
+    level_y += 30;
+
+    d.gui_label(
+        rrect(gui_x + 5, level_y, 100, 30),
+        "Entities - label"
+    );
+    level_y += 30;
+
+    if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Add") {
+        println!("Add button pressed");
+    }
+    level_y += 70;
+
+    d.gui_list_view(
+        rrect(gui_x +5, level_y, 100, 200),
+        &entities_list,
+        &mut 1,
+        &mut 2);
+}
+
+fn draw_frames(d: &mut RaylibDrawHandle, va: &Area) {
+        let color = Color::DARKSLATEGRAY;
+        let thickness = 5;
+        d.draw_rectangle(0, 0, va.w, thickness, color);
+        d.draw_rectangle(0, va.h-thickness, va.w, va.h, color);
+        d.draw_rectangle(0, 0, thickness, va.h, color);
+        d.draw_rectangle(va.w-thickness, 0, thickness, va.h, color);
+
+        // TODO: draw frame around GUI
+    }

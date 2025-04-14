@@ -46,25 +46,25 @@ impl System for Borders {
     }
 
     fn apply(&mut self, cm: &mut ComponentManager) -> Box<dyn Fn(&mut Coordinator)> {
-        for e in self.entities.iter() {
-            if let Some(v) = cm.get_mut::<Velocity>(e) {
-                let mut v = Velocity {vx: v.vx, vy: v.vy};
-                if let Some(coords) = cm.get::<Coords>(e) {
-
-                    let globals = self.globals.borrow();
-                    let w = globals.get::<AppWindow>("app_window").unwrap().view_area.w;
-                    let h = globals.get::<AppWindow>("app_window").unwrap().view_area.h;
-
-                    if coords.x < 0 || coords.x > w {
-                        v.vx = -v.vx;
-                    }
-                    if coords.y < 0 || coords.y > h {
-                        v.vy = -v.vy;
-                    }
-                    cm.add(*e, v);
-                }
-            }
-        }
+//        for e in self.entities.iter() {
+//            if let Some(v) = cm.get_mut::<Velocity>(e) {
+//                let mut v = Velocity {vx: v.vx, vy: v.vy};
+//                if let Some(coords) = cm.get::<Coords>(e) {
+//
+//                    let globals = self.globals.borrow();
+//                    let w = globals.get::<AppWindow>("app_window").unwrap().view_area.w;
+//                    let h = globals.get::<AppWindow>("app_window").unwrap().view_area.h;
+//
+//                    if coords.x < 0 || coords.x > w {
+//                        v.vx = -v.vx;
+//                    }
+//                    if coords.y < 0 || coords.y > h {
+//                        v.vy = -v.vy;
+//                    }
+//                    cm.add(*e, v);
+//                }
+//            }
+//        }
 
         Box::new(| _coordinator | {})
     }
