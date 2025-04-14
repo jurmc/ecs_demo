@@ -4,14 +4,11 @@ use crate::ComponentType;
 use crate::Coords;
 use crate::CursorControlled;
 
-use raylib::prelude::*;
 use ecs::ComponentManager;
 use ecs::Coordinator;
 use ecs::System;
 
 use std::collections::HashSet;
-use std::rc::Rc;
-use std::cell::RefCell;
 
 pub struct CursorInput {
     pub entities: HashSet<Entity>,
@@ -42,7 +39,7 @@ impl System for CursorInput {
         &self.component_types
     }
 
-    fn apply(&mut self, cm: &mut ComponentManager) -> Box<dyn Fn(&mut Coordinator)> {
+    fn apply(&mut self, _cm: &mut ComponentManager) -> Box<dyn Fn(&mut Coordinator)> {
         Box::new(| _ | {})
     }
 }
