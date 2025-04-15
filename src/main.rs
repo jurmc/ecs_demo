@@ -1,5 +1,8 @@
 pub mod systems;
+pub mod gui;
 
+
+use gui::SimMode;
 use systems::CursorInput;
 use systems::Reaper;
 use systems::IntegrateVelocity;
@@ -16,24 +19,6 @@ use raylib::prelude::*;
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::fmt::Write;
-
-enum SimMode {
-    Stopped,
-    Started,
-    OneStep,
-}
-
-struct GuiState {
-    sim_mode: SimMode,
-}
-
-impl GuiState {
-    fn new() -> GuiState {
-        GuiState {
-            sim_mode: SimMode::Stopped,
-        }
-    }
-}
 
 pub struct Area {
     w: i32,
@@ -171,7 +156,7 @@ fn main() {
     c.add_component(e3, Velocity{vx: -2f64, vy: 0f64});
     c.add_component(e3, Weight { w: -1 });
 
-    let mut gui_state = GuiState::new();
+    let mut gui_state = gui::GuiState::new();
 
     loop {
         let mut entities_list = String::new();
@@ -190,14 +175,13 @@ fn main() {
             }
 
             let mut d = rl.begin_drawing(&raylib_thread);
+            d.clear_background(Color::DARKGRAY);
+
             let view_area = &app_window.view_area;
             let gui_area = &app_window.gui_area;
 
-            d.clear_background(Color::DARKGRAY);
-            draw_frames(&mut d, &view_area, &gui_area);
-
             let (gui_x, gui_y) = (view_area.w, 0);
-            draw_gui(&mut d, &mut gui_state, &entities_list, gui_x, gui_y);
+            gui::draw_gui(&mut d, &mut gui_state, &entities_list, &app_window);
 
             for e in renderer_sys.borrow().entities.iter() {
                 let coords = c.get::<Coords>(&e);
@@ -253,51 +237,3 @@ fn main() {
     }
 }
 
-fn draw_gui(d: &mut RaylibDrawHandle, gui_state: &mut GuiState, entities_list: &String, gui_x: i32, gui_y: i32) {
-    let mut level_y = gui_y + 5;
-
-    if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Step") {
-        gui_state.sim_mode = SimMode::OneStep
-    }
-    let play_button_text = match gui_state.sim_mode {
-        SimMode::Started => "Stop",
-        _ => "Play",
-    };
-    if d.gui_button( rrect(gui_x + 120, gui_y + level_y, 100, 30),play_button_text) {
-        match gui_state.sim_mode {
-            SimMode::Started => gui_state.sim_mode = SimMode::Stopped,
-            _ => gui_state.sim_mode = SimMode::Started,
-        }
-    }
-    level_y += 30;
-
-    d.gui_label(
-        rrect(gui_x + 5, level_y, 100, 30),
-        "Entities - label"
-    );
-    level_y += 30;
-
-    if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Add") {
-        println!("Add button pressed");
-    }
-    level_y += 70;
-
-    d.gui_list_view(
-        rrect(gui_x +5, level_y, 100, 200),
-        &entities_list,
-        &mut 1,
-        &mut 2);
-}
-
-fn draw_frames(d: &mut RaylibDrawHandle, view: &Area, gui: &Area) {
-        let color = Color::DARKSLATEGRAY;
-        let thickness = 5;
-        d.draw_rectangle(0, 0, view.w, thickness, color);
-        d.draw_rectangle(0, view.h-thickness, view.w, view.h, color);
-        d.draw_rectangle(0, 0, thickness, view.h, color);
-        d.draw_rectangle(view.w-(thickness/2), 0, thickness+(thickness/2), view.h, color);
-
-        d.draw_rectangle(view.w, 0, gui.w, thickness, color);
-        d.draw_rectangle(view.w, gui.h-thickness, gui.w, gui.h, color);
-        d.draw_rectangle(view.w+gui.w-thickness, 0, thickness, gui.h, color);
-    }
