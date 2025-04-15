@@ -24,6 +24,18 @@ enum SimMode {
     OneStep,
 }
 
+struct GuiState {
+    sim_mode: SimMode,
+}
+
+impl GuiState {
+    fn new() -> GuiState {
+        GuiState {
+            sim_mode: SimMode::Stopped,
+        }
+    }
+}
+
 pub struct Area {
     w: i32,
     h: i32
@@ -169,6 +181,8 @@ fn main() {
     c.add_component(e3, Velocity{vx: -2f64, vy: 0f64});
     c.add_component(e3, Weight { w: -1 });
 
+    let mut gui_state = GuiState::new();
+
     loop {
         let mut entities_list = String::new();
         for e in c.entities_iter() {
@@ -193,7 +207,7 @@ fn main() {
             draw_frames(&mut d, &view_area, &gui_area);
 
             let (gui_x, gui_y) = (view_area.w, 0);
-            draw_gui(&mut d, &entities_list, gui_x, gui_y);
+            draw_gui(&mut d, &mut gui_state, &entities_list, gui_x, gui_y);
 
             for e in renderer_sys.borrow().entities.iter() {
                 let coords = c.get::<Coords>(&e);
@@ -238,23 +252,31 @@ fn main() {
             }
         }
 
-        c.apply_all();
+        match gui_state.sim_mode {
+            SimMode::Started => c.apply_all(),
+            SimMode::OneStep => {
+                c.apply_all();
+                gui_state.sim_mode = SimMode::Stopped;
+            },
+            _ => (),
+        }
     }
 }
 
-fn draw_gui(d: &mut RaylibDrawHandle, entities_list: &String, gui_x: i32, gui_y: i32) {
-    let mut sim_mode = SimMode::Stopped;
+fn draw_gui(d: &mut RaylibDrawHandle, gui_state: &mut GuiState, entities_list: &String, gui_x: i32, gui_y: i32) {
     let mut level_y = gui_y + 5;
 
     if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Step") {
-        println!("Step button pressed");
-        sim_mode = SimMode::OneStep
+        gui_state.sim_mode = SimMode::OneStep
     }
-    if d.gui_button( rrect(gui_x + 120, gui_y + level_y, 100, 30), "Play") {
-        println!("Play button pressed");
-        match sim_mode {
-            SimMode::Started => sim_mode = SimMode::Stopped,
-            _ => sim_mode = SimMode::Stopped,
+    let play_button_text = match gui_state.sim_mode {
+        SimMode::Started => "Stop",
+        _ => "Play",
+    };
+    if d.gui_button( rrect(gui_x + 120, gui_y + level_y, 100, 30),play_button_text) {
+        match gui_state.sim_mode {
+            SimMode::Started => gui_state.sim_mode = SimMode::Stopped,
+            _ => gui_state.sim_mode = SimMode::Started,
         }
     }
     level_y += 30;
