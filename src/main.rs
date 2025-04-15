@@ -11,7 +11,6 @@ use systems::Borders;
 use ecs::Entity;
 use ecs::Coordinator;
 use ecs::ComponentType;
-use ecs::Globals; // TODO: to be removed from ECS, and from ecs_demo
 use raylib::prelude::*;
 
 use std::rc::Rc;
@@ -107,20 +106,11 @@ fn main() {
     };
     let rl_data = RayLibData::new(&app_window);
 
-    let mut globals = Globals::new();
-//    globals.add("app_window", app_window);
-//    globals.add("sim_mode", SimMode::Stopped);
-    let globals = Rc::new(RefCell::new(globals));
-
     let rl_data = Rc::new(RefCell::new(rl_data));
 
-    let renderer_sys = Renderer::new(
-        globals.clone(),
-        rl_data.clone());
+    let renderer_sys = Renderer::new(rl_data.clone());
     let renderer_sys = Rc::new(RefCell::new(renderer_sys));
-    let mouse_input_sys = MouseInput::new(
-        globals.clone(),
-        rl_data.clone());
+    let mouse_input_sys = MouseInput::new(rl_data.clone());
     let mouse_input_sys = Rc::new(RefCell::new(mouse_input_sys));
     let cursor_input_sys = CursorInput::new();
     let cursor_input_sys = Rc::new(RefCell::new(cursor_input_sys));

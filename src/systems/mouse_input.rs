@@ -11,7 +11,6 @@ use ecs::ComponentManager;
 use ecs::Entity;
 use ecs::System;
 use ecs::Coordinator;
-use ecs::Globals;
 use raylib::prelude::*;
 
 use std::collections::HashSet;
@@ -22,13 +21,11 @@ pub struct MouseInput {
     entities: HashSet<Entity>,
     component_types: HashSet<ComponentType>,
 
-    globals: Rc<RefCell<Globals>>,
     ray_lib_data: Rc<RefCell<RayLibData>>,
 }
 
 impl MouseInput {
     pub fn new(
-        globals: Rc<RefCell<Globals>>,
         ray_lib_data: Rc<RefCell<RayLibData>>) -> MouseInput {
         MouseInput {
             entities: HashSet::new(),
@@ -37,7 +34,6 @@ impl MouseInput {
                 ComponentType::of::<MouseControlled>(),
             ]),
 
-            globals,
             ray_lib_data,
         }
     }
