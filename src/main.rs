@@ -18,7 +18,6 @@ use raylib::prelude::*;
 
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::fmt::Write;
 
 pub struct Area {
     w: i32,
@@ -159,11 +158,6 @@ fn main() {
     let mut gui_state = gui::GuiState::new();
 
     loop {
-        let mut entities_list = String::new();
-        for e in c.entities_iter() {
-            write!(entities_list, "{}\n", e).unwrap();
-        }
-
         let ray_lib_data = rl_data.borrow_mut();
         let mut rl= ray_lib_data.rl.borrow_mut();
         let raylib_thread = ray_lib_data.raylib_thread.borrow();
@@ -180,7 +174,7 @@ fn main() {
             let gui_area = &app_window.gui_area;
 
             let (gui_x, gui_y) = (view_area.w, 0);
-            gui::draw_gui(&mut d, &mut gui_state, &entities_list, &app_window);
+            gui::apply(&mut d, &mut gui_state, &app_window, &c);
 
             for e in renderer_sys.borrow().entities.iter() {
                 let coords = c.get::<Coords>(&e);

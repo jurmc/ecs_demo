@@ -1,7 +1,10 @@
 use crate::AppWindow;
 use crate::Area;
 
+use ecs::Coordinator;
 use raylib::prelude::*;
+
+use std::fmt::Write;
 
 pub enum SimMode {
     Stopped,
@@ -30,7 +33,7 @@ impl GuiState {
     }
 }
 
-pub fn draw_gui(d: &mut RaylibDrawHandle, gui_state: &mut GuiState, entities_list: &String, app_window: &AppWindow) {
+pub fn apply(d: &mut RaylibDrawHandle, gui_state: &mut GuiState, app_window: &AppWindow, c: &Coordinator) {
     let view_area = &app_window.view_area;
     let gui_area = &app_window.gui_area;
     let (gui_x, gui_y) = (view_area.w, 0);
@@ -71,6 +74,11 @@ pub fn draw_gui(d: &mut RaylibDrawHandle, gui_state: &mut GuiState, entities_lis
         println!("gonna to remove entity: {}", gui_state.entity_selected_idx);
     }
     level_y += 70;
+
+    let mut entities_list = String::new();
+    for e in c.entities_iter() {
+        write!(entities_list, "{}\n", e).unwrap();
+    }
 
     d.gui_list_view(
         rrect(gui_x +5, level_y, 100, 200),
