@@ -125,7 +125,7 @@ fn main() {
     let cursor_input_sys = CursorInput::new();
     let cursor_input_sys = Rc::new(RefCell::new(cursor_input_sys));
 
-    let borders = Borders::new(globals.clone());
+    let borders = Borders::new(width, height);
 
     let mut c = Coordinator::new();
 
