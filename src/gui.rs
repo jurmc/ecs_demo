@@ -11,12 +11,21 @@ pub enum SimMode {
 
 pub struct GuiState {
     pub sim_mode: SimMode,
+    pub quit: bool,
+
+    // Entities
+    pub entity_scroll_idx: i32,
+    pub entity_selected_idx: i32,
 }
 
 impl GuiState {
     pub fn new() -> GuiState {
         GuiState {
             sim_mode: SimMode::Stopped,
+            quit: false,
+
+            entity_scroll_idx: 0,
+            entity_selected_idx: 0,
         }
     }
 }
@@ -37,11 +46,14 @@ pub fn draw_gui(d: &mut RaylibDrawHandle, gui_state: &mut GuiState, entities_lis
         SimMode::Started => "Stop",
         _ => "Play",
     };
-    if d.gui_button( rrect(gui_x + 120, gui_y + level_y, 100, 30),play_button_text) {
+    if d.gui_button( rrect(gui_x + 120, gui_y + level_y, 100, 30), play_button_text) {
         match gui_state.sim_mode {
             SimMode::Started => gui_state.sim_mode = SimMode::Stopped,
             _ => gui_state.sim_mode = SimMode::Started,
         }
+    }
+    if d.gui_button( rrect(gui_x + 235, gui_y + level_y, 100, 30), "Quit") {
+        gui_state.quit = true;
     }
     level_y += 30;
 
@@ -54,13 +66,18 @@ pub fn draw_gui(d: &mut RaylibDrawHandle, gui_state: &mut GuiState, entities_lis
     if d.gui_button( rrect(gui_x + 5, gui_y + level_y, 100, 30), "Add") {
         println!("Add button pressed");
     }
+    if d.gui_button( rrect(gui_x + 120, gui_y + level_y, 100, 30), "Remove") {
+        println!("Remove button pressed");
+        println!("gonna to remove entity: {}", gui_state.entity_selected_idx);
+    }
     level_y += 70;
 
     d.gui_list_view(
         rrect(gui_x +5, level_y, 100, 200),
         &entities_list,
-        &mut 1,
-        &mut 2);
+        &mut gui_state.entity_scroll_idx,
+        &mut gui_state.entity_selected_idx);
+
 }
 
 fn draw_frames(d: &mut RaylibDrawHandle, view: &Area, gui: &Area) {

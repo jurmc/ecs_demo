@@ -169,9 +169,8 @@ fn main() {
         let raylib_thread = ray_lib_data.raylib_thread.borrow();
         {
 
-            if rl.window_should_close() {
-                panic!("Exitted..."); // TODO: this condition should rather be somehow signalled to the
-                                      // outside world...
+            if rl.window_should_close() || gui_state.quit {
+                break;
             }
 
             let mut d = rl.begin_drawing(&raylib_thread);
@@ -203,8 +202,6 @@ fn main() {
         // CursorInput
         {
             let (mut inc_x, mut inc_y) = (0, 0);
-            //let rl = rl.borrow();
-            //let sth = rl;
 
             if rl.is_key_down(KeyboardKey::KEY_RIGHT) {
                 inc_x += 1;
