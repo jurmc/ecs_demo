@@ -62,6 +62,7 @@ pub struct MySize {
     s: f32,
 }
 
+#[derive(Debug)]
 pub struct MyColor {
     c: Color,
 }
@@ -174,7 +175,7 @@ fn main() {
             let gui_area = &app_window.gui_area;
 
             let (gui_x, gui_y) = (view_area.w, 0);
-            gui::apply(&mut d, &mut gui_state, &app_window, &c);
+            gui::apply(&mut d, &mut gui_state, &app_window, &mut c);
 
             for e in renderer_sys.borrow().entities.iter() {
                 let coords = c.get::<Coords>(&e);
@@ -189,6 +190,9 @@ fn main() {
                         None => &mut MyColor { c: Color::CYAN},
                     };
                     d.draw_circle(coords.x, coords.y, size, color.c);
+                    if gui_state.entity_labels {
+                        d.draw_text(&e.to_string(), coords.x, coords.y, 12, Color::TOMATO);
+                    }
                 }
             }
         }
